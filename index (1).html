@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Addisjon og subtraksjon – tallinje, tips og fasit</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#111a2e;
+      --text:#e8eefc;
+      --muted:#b9c6ef;
+      --accent:#7aa7ff;
+      --accent2:#7dffbf;
+      --warn:#ffd37a;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --radius: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 700px at 20% 10%, #13224a 0%, var(--bg) 55%) fixed;
+      color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    header{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:12px 10px 2px}
+    h1{font-size:clamp(18px,2.2vw,24px);margin:0;letter-spacing:.2px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.35;max-width:68ch}
+    .grid{display:grid;grid-template-columns: 1.1fr .9fr;gap:14px;margin-top:12px}
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 14px;
+      background: rgba(255,255,255,.03);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .card .hd h2{margin:0;font-size:15px;letter-spacing:.2px;color:#dfe8ff}
+    .card .bd{padding:14px}
+
+    label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px}
+    select, button{
+      font-family:inherit;
+      font-size:16px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(10,18,35,.65);
+      color:var(--text);
+      padding:10px 12px;
+      outline:none;
+    }
+    select{width:100%}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 540px){ .row{grid-template-columns:1fr} }
+
+    .bigTask{
+      font-size: clamp(34px, 4.4vw, 56px);
+      font-weight: 750;
+      letter-spacing: .4px;
+      text-align:center;
+      padding:18px 10px;
+      background: linear-gradient(180deg, rgba(122,167,255,.12), rgba(125,255,191,.06));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      margin:10px 0 12px;
+    }
+    .btnbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+    button{cursor:pointer;min-height:48px;padding:12px 16px;font-weight:650}
+    .primary{background: linear-gradient(180deg, rgba(122,167,255,.25), rgba(122,167,255,.12));border-color: rgba(122,167,255,.45)}
+    .secondary{background: linear-gradient(180deg, rgba(125,255,191,.18), rgba(125,255,191,.08));border-color: rgba(125,255,191,.35)}
+    .ghost{background: rgba(255,255,255,.04)}
+    button:active{transform: translateY(1px)}
+
+    .note{color:var(--muted);font-size:13px;line-height:1.35;margin:10px 0 0;text-align:center}
+
+    .canvasWrap{
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      overflow:hidden;
+    }
+    canvas{display:block;width:100%;height:auto}
+
+    .panel{
+      border-radius: var(--radius);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      background: rgba(0,0,0,.18);
+    }
+    .panelTop{
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+      padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.10);background: rgba(255,255,255,.03);
+    }
+    .panelTop .title{font-weight:700;letter-spacing:.2px}
+    .statePill{
+      font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+      color:var(--muted);background: rgba(0,0,0,.22);white-space:nowrap;
+    }
+    .panelBody{padding:14px;display:none}
+    .panelBody.open{display:block}
+
+    .method{
+      padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.10);
+      background: rgba(17,26,46,.55);margin-bottom:10px;
+    }
+    .method h3{
+      margin:0 0 8px;font-size:14px;letter-spacing:.2px;color:#eaf0ff;
+      display:flex;gap:8px;align-items:center;justify-content:space-between;
+    }
+    .method .tag{
+      font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+      color:var(--muted);background: rgba(0,0,0,.18);
+    }
+    .method p{margin:0;color:var(--text);line-height:1.45;font-size:14px}
+
+    .pre{
+      font-family:var(--mono);
+      font-size:14px;
+      line-height:1.35;
+      white-space:pre;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:10px 12px;
+      overflow:auto;
+      margin-top:10px;
+    }
+    .answer{
+      text-align:center;
+      font-size:24px;
+      font-weight:800;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(125,255,191,.10);
+      border:1px solid rgba(125,255,191,.30);
+      margin-bottom:12px;
+    }
+    .tiny{font-size:12px;color:var(--muted)}
+    .warnbox{
+      border:1px solid rgba(255,211,122,.35);
+      background: rgba(255,211,122,.08);
+      border-radius:14px;
+      padding:10px 12px;
+      color: var(--text);
+      font-size:13px;
+      line-height:1.35;
+      margin-top:10px;
+      display:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Addisjon og subtraksjon – tallinje, tips og fasit</h1>
+        <p class="sub">
+          Ingen innskriving av svar. <b>Ny oppgave</b> gir en rolig tallinje. <b>Vis tips</b> gir metoder uten svar.
+          <b>Vis fasit</b> gir svaret + full løsning.
+        </p>
+      </div>
+      <div class="tiny">Én fil. Ingen biblioteker. GitHub Pages-klar.</div>
+    </header>
+
+    <div class="grid">
+      <section class="card" aria-label="innstillinger">
+        <div class="hd">
+          <h2>1) Innstillinger</h2>
+          <span class="tiny">Nivå + overgang/veksling</span>
+        </div>
+        <div class="bd">
+          <div class="row">
+            <div>
+              <label for="opSelect">Operasjon</label>
+              <select id="opSelect">
+                <option value="add">Addisjon (+)</option>
+                <option value="sub">Subtraksjon (−)</option>
+                <option value="mix">Bland (+/−)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="levelSelect">Nivå (siffer-spenn)</label>
+              <select id="levelSelect">
+                <option value="2_1">2-sifret ± 1-sifret</option>
+                <option value="2_2">2-sifret ± 2-sifret</option>
+                <option value="3_2">3-sifret ± 2-sifret</option>
+                <option value="3_3">3-sifret ± 3-sifret</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+
+          <div class="row">
+            <div>
+              <label for="carrySelect">Addisjon: overgang (bære)</label>
+              <select id="carrySelect">
+                <option value="any">Valgfritt</option>
+                <option value="none">Uten tierovergang</option>
+                <option value="one">Med tierovergang (minst 1)</option>
+                <option value="multi">Med flere overganger (minst 2)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="borrowSelect">Subtraksjon: veksling (lån)</label>
+              <select id="borrowSelect">
+                <option value="any">Valgfritt</option>
+                <option value="none">Uten veksling</option>
+                <option value="one">Med veksling (minst 1)</option>
+                <option value="multi">Med flere vekslinger (minst 2)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="warnbox" id="mixWarn">
+            <b>Merk:</b> I <span style="font-family:var(--mono)">Bland</span> brukes overgang-kravet hvis oppgaven blir addisjon,
+            og veksling-kravet hvis oppgaven blir subtraksjon.
+          </div>
+
+          <div class="btnbar" style="margin-top:14px">
+            <button class="primary" id="newBtn">Ny oppgave</button>
+            <button class="secondary" id="fasitBtn">Vis tips</button>
+            <button class="ghost" id="resetBtn" title="Skjul tips/fasit for samme oppgave">Skjul panel</button>
+          </div>
+
+          <p class="note" id="statusLine"></p>
+        </div>
+      </section>
+
+      <section class="card" aria-label="oppgave og tallinje">
+        <div class="hd">
+          <h2>2–3) Oppgaven og tallinja</h2>
+          <span class="tiny">Tallinja viser ikke svar før fasit</span>
+        </div>
+        <div class="bd">
+          <div class="bigTask" id="taskText" aria-live="polite">Trykk “Ny oppgave”.</div>
+
+          <div class="canvasWrap" aria-label="tallinje">
+            <canvas id="numCanvas" width="980" height="260"></canvas>
+          </div>
+
+          <p class="note">
+            Tallinja er rolig i starten. Tips-trinnet kan vise strategi (uten å gi svaret).
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:14px" aria-label="tips og fasit">
+      <div class="hd">
+        <h2>4) Tips / Fasit</h2>
+        <span class="tiny">To trykk: Tips → Fasit</span>
+      </div>
+      <div class="bd">
+        <div class="panel">
+          <div class="panelTop">
+            <div class="title">Panel for denne oppgaven</div>
+            <div class="statePill" id="statePill">Skjult</div>
+          </div>
+          <div class="panelBody" id="panelBody">
+            <div id="answerBox" style="display:none" class="answer"></div>
+
+            <div class="method">
+              <h3><span>A) Tallinje</span><span class="tag" id="tagA">tips</span></h3>
+              <p id="textA"></p>
+              <div class="pre" id="preA" style="display:none"></div>
+            </div>
+
+            <div class="method">
+              <h3><span>B) Utvidet form (plassverdi)</span><span class="tag" id="tagB">tips</span></h3>
+              <p id="textB"></p>
+              <div class="pre" id="preB"></div>
+            </div>
+
+            <div class="method">
+              <h3><span>C) Oppstilling (algoritme)</span><span class="tag" id="tagC">tips</span></h3>
+              <p id="textC"></p>
+              <div class="pre" id="preC"></div>
+            </div>
+          </div>
+        </div>
+        <p class="note tiny">Fokus: tallforståelse, posisjonssystem, hoderegning og skriftlige algoritmer (LK20 4.–7.).</p>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function(){
+  const opSelect = document.getElementById('opSelect');
+  const levelSelect = document.getElementById('levelSelect');
+  const carrySelect = document.getElementById('carrySelect');
+  const borrowSelect = document.getElementById('borrowSelect');
+  const newBtn = document.getElementById('newBtn');
+  const fasitBtn = document.getElementById('fasitBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const taskText = document.getElementById('taskText');
+  const statusLine = document.getElementById('statusLine');
+  const mixWarn = document.getElementById('mixWarn');
+
+  const panelBody = document.getElementById('panelBody');
+  const statePill = document.getElementById('statePill');
+
+  const answerBox = document.getElementById('answerBox');
+
+  const textA = document.getElementById('textA');
+  const textB = document.getElementById('textB');
+  const textC = document.getElementById('textC');
+
+  const preA = document.getElementById('preA');
+  const preB = document.getElementById('preB');
+  const preC = document.getElementById('preC');
+
+  const tagA = document.getElementById('tagA');
+  const tagB = document.getElementById('tagB');
+  const tagC = document.getElementById('tagC');
+
+  const canvas = document.getElementById('numCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let current = null;
+  let fasitState = 0; // 0=skjult, 1=tips, 2=fasit
+
+  const randInt = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+
+  function levelRanges(levelKey){
+    switch(levelKey){
+      case '2_1': return {aMin:10, aMax:99, bMin:1, bMax:9};
+      case '2_2': return {aMin:10, aMax:99, bMin:10, bMax:99};
+      case '3_2': return {aMin:100, aMax:999, bMin:10, bMax:99};
+      case '3_3': return {aMin:100, aMax:999, bMin:100, bMax:999};
+      default: return {aMin:10, aMax:99, bMin:1, bMax:9};
+    }
+  }
+
+  function countCarries(a,b){
+    let carries=0, carry=0;
+    let x=a, y=b;
+    for(let i=0;i<3;i++){
+      const da=x%10, db=y%10;
+      const s=da+db+carry;
+      if(s>=10){ carries++; carry=1; } else carry=0;
+      x=Math.floor(x/10); y=Math.floor(y/10);
+    }
+    return carries;
+  }
+
+  function countBorrows(a,b){
+    let borrows=0, borrow=0;
+    let x=a, y=b;
+    for(let i=0;i<3;i++){
+      const da=x%10, db=y%10;
+      const top=da-borrow;
+      if(top<db){ borrows++; borrow=1; } else borrow=0;
+      x=Math.floor(x/10); y=Math.floor(y/10);
+    }
+    return borrows;
+  }
+
+  function requirementText(task){
+    if(task.op==='add'){
+      const req=task.carryNeed;
+      if(req==='none') return 'Uten tierovergang';
+      if(req==='one') return 'Med tierovergang (minst 1)';
+      if(req==='multi') return 'Med flere overganger (minst 2)';
+      return 'Overgang: valgfritt';
+    }else{
+      const req=task.borrowNeed;
+      if(req==='none') return 'Uten veksling';
+      if(req==='one') return 'Med veksling (minst 1)';
+      if(req==='multi') return 'Med flere vekslinger (minst 2)';
+      return 'Veksling: valgfritt';
+    }
+  }
+
+  function generateTask(){
+    const opMode = opSelect.value;
+    const levelKey = levelSelect.value;
+    const carryNeed = carrySelect.value;
+    const borrowNeed = borrowSelect.value;
+    const ranges = levelRanges(levelKey);
+
+    let op = opMode;
+    if(opMode==='mix') op = Math.random()<0.5 ? 'add':'sub';
+
+    const maxTries=20000;
+    for(let t=0;t<maxTries;t++){
+      let a=randInt(ranges.aMin,ranges.aMax);
+      let b=randInt(ranges.bMin,ranges.bMax);
+
+      if(op==='add'){
+        const carries=countCarries(a,b);
+        if(carryNeed==='none' && carries!==0) continue;
+        if(carryNeed==='one' && carries<1) continue;
+        if(carryNeed==='multi' && carries<2) continue;
+        return {a,b,op,result:a+b,levelKey,carryNeed,borrowNeed};
+      }else{
+        if(b>a){ const tmp=a;a=b;b=tmp; }
+        const borrows=countBorrows(a,b);
+        if(borrowNeed==='none' && borrows!==0) continue;
+        if(borrowNeed==='one' && borrows<1) continue;
+        if(borrowNeed==='multi' && borrows<2) continue;
+        return {a,b,op,result:a-b,levelKey,carryNeed,borrowNeed};
+      }
+    }
+    return {a:10,b:5,op:'add',result:15,levelKey,carryNeed:'any',borrowNeed:'any'};
+  }
+
+  // Tallinje
+  function niceStep(span){
+    const candidates=[1,2,5,10,20,50,100,200,500,1000];
+    const target=span/12;
+    let best=candidates[0], bestDiff=Math.abs(best-target);
+    for(const c of candidates){
+      const d=Math.abs(c-target);
+      if(d<bestDiff){ best=c; bestDiff=d; }
+    }
+    if(span<=20) best=1;
+    return best;
+  }
+
+  function computeLineWindow(task){
+    const start=task.a;
+    const end=(task.op==='add')?task.a+task.b:task.a-task.b;
+    const minV=Math.min(start,end);
+    const maxV=Math.max(start,end);
+    const magnitude=Math.max(10, Math.pow(10, Math.floor(Math.log10(Math.max(1,maxV)))));
+    const pad=Math.max(10, Math.min(180, Math.round(magnitude*0.15)));
+    let lo=Math.max(0, minV-pad);
+    let hi=maxV+pad;
+    const span=hi-lo;
+    const step=niceStep(span);
+    lo=Math.floor(lo/step)*step;
+    hi=Math.ceil(hi/step)*step;
+    return {lo,hi,step,start,end};
+  }
+
+  function drawDirectionArrow(x0,x1,y,op){
+    const dir = (x1>=x0)?1:-1;
+    const len = 90;
+    const xb = x0 + dir*len;
+
+    ctx.strokeStyle = op==='add' ? 'rgba(122,167,255,.45)' : 'rgba(255,211,122,.45)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x0, y-40);
+    ctx.lineTo(xb, y-40);
+    ctx.stroke();
+
+    ctx.fillStyle = op==='add' ? 'rgba(122,167,255,.45)' : 'rgba(255,211,122,.45)';
+    ctx.beginPath();
+    ctx.moveTo(xb, y-40);
+    ctx.lineTo(xb - dir*12, y-48);
+    ctx.lineTo(xb - dir*12, y-32);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle='rgba(185,198,239,.92)';
+    ctx.font='13px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillText('Retning', xb-24, y-52);
+  }
+
+  function decomposeAddHops(a,b){
+    let remaining=b;
+    const hops=[];
+    const ones=a%10;
+    if(ones!==0){
+      const toNext10=10-ones;
+      if(toNext10>0 && toNext10<remaining){
+        hops.push(toNext10);
+        remaining-=toNext10;
+        a+=toNext10;
+      }
+    }
+    const mag = (remaining>=100)?100:10;
+    const big=Math.floor(remaining/mag)*mag;
+    if(big>0){ hops.push(big); remaining-=big; }
+    if(remaining>0) hops.push(remaining);
+    if(hops.length>3) return [b];
+    return hops;
+  }
+
+  function decomposeSubHops(a,b){
+    let remaining=b;
+    const hops=[];
+    const ones=a%10;
+    if(ones!==0){
+      const toPrev10=ones;
+      if(toPrev10>0 && toPrev10<remaining){
+        hops.push(-toPrev10);
+        remaining-=toPrev10;
+        a-=toPrev10;
+      }
+    }
+    const mag=(remaining>=100)?100:10;
+    const big=Math.floor(remaining/mag)*mag;
+    if(big>0){ hops.push(-big); remaining-=big; }
+    if(remaining>0) hops.push(-remaining);
+    if(hops.length>3) return [-b];
+    return hops;
+  }
+
+  function drawHops(task,toX,axisY,showHopNumbers){
+    const hops = (task.op==='add') ? decomposeAddHops(task.a, task.b) : decomposeSubHops(task.a, task.b);
+    let cur=task.a;
+    ctx.strokeStyle = task.op==='add' ? 'rgba(122,167,255,.50)' : 'rgba(255,211,122,.50)';
+    ctx.fillStyle   = task.op==='add' ? 'rgba(122,167,255,.50)' : 'rgba(255,211,122,.50)';
+    ctx.lineWidth=3;
+
+    for(let i=0;i<hops.length;i++){
+      const d=hops[i];
+      const next=cur+d;
+      const x0=toX(cur);
+      const x1=toX(next);
+      const baseY=axisY-2;
+      const arcH=34+i*10;
+
+      ctx.beginPath();
+      ctx.moveTo(x0, baseY);
+      ctx.quadraticCurveTo((x0+x1)/2, baseY-arcH, x1, baseY);
+      ctx.stroke();
+
+      const dir = (x1>=x0)?1:-1;
+      const size=8;
+      ctx.beginPath();
+      ctx.moveTo(x1, baseY);
+      ctx.lineTo(x1-dir*size, baseY-size/2);
+      ctx.lineTo(x1-dir*size, baseY+size/2);
+      ctx.closePath();
+      ctx.fill();
+
+      if(showHopNumbers){
+        ctx.font='bold 13px ' + getComputedStyle(document.body).fontFamily;
+        const label=(d>=0?'+':'')+String(d);
+        const lx=(x0+x1)/2 - (label.length*3);
+        const ly=baseY-arcH-6;
+        ctx.fillText(label,lx,ly);
+      }
+      cur=next;
+    }
+  }
+
+  function drawNumberLine(task, mode){
+    const {lo,hi,step,start,end}=computeLineWindow(task);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const w=canvas.width, h=canvas.height;
+    const paddingX=52;
+    const axisY=Math.round(h*0.62);
+    const left=paddingX;
+    const right=w-paddingX;
+
+    const range=hi-lo;
+    const toX=(v)=>left+((v-lo)/range)*(right-left);
+
+    ctx.strokeStyle='rgba(255,255,255,.18)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(left,axisY);
+    ctx.lineTo(right,axisY);
+    ctx.stroke();
+
+    ctx.font='14px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillStyle='rgba(232,238,252,.92)';
+    ctx.strokeStyle='rgba(255,255,255,.18)';
+    ctx.lineWidth=2;
+
+    const tickTop=axisY-10, tickBot=axisY+10;
+    for(let v=lo; v<=hi; v+=step){
+      const x=toX(v);
+      ctx.beginPath();
+      ctx.moveTo(x,tickTop);
+      ctx.lineTo(x,tickBot);
+      ctx.stroke();
+
+      const every=(range<=80)?1:(range<=200?2:(range<=600?5:10));
+      const idx=Math.round((v-lo)/step);
+      if(idx%every===0){
+        ctx.fillText(String(v), x-10, axisY+34);
+      }
+    }
+
+    ctx.fillStyle='rgba(185,198,239,.92)';
+    ctx.font='13px ' + getComputedStyle(document.body).fontFamily;
+    const sym=task.op==='add'?'+':'−';
+    ctx.fillText(`Skala: ${step}  |  ${task.a} ${sym} ${task.b}  |  ${requirementText(task)}`, left, 26);
+
+    const x0=toX(start);
+    ctx.fillStyle='rgba(122,167,255,.95)';
+    ctx.beginPath();
+    ctx.arc(x0, axisY, 7, 0, Math.PI*2);
+    ctx.fill();
+    ctx.font='bold 14px ' + getComputedStyle(document.body).fontFamily;
+    ctx.fillText('Start', x0-18, axisY-18);
+
+    if(mode==='quiet'){
+      drawDirectionArrow(toX(start), toX(end), axisY, task.op);
+      return;
+    }
+    if(mode==='tips'){
+      drawHops(task, toX, axisY, false);
+      return;
+    }
+    if(mode==='answer'){
+      drawHops(task, toX, axisY, true);
+      const x1=toX(end);
+      ctx.fillStyle='rgba(125,255,191,.95)';
+      ctx.beginPath();
+      ctx.arc(x1, axisY, 7, 0, Math.PI*2);
+      ctx.fill();
+      ctx.font='bold 14px ' + getComputedStyle(document.body).fontFamily;
+      ctx.fillText('Slutt', x1-16, axisY-18);
+      ctx.fillStyle='rgba(232,238,252,.95)';
+      ctx.fillText(String(end), x1-12, axisY-42);
+    }
+  }
+
+  // Utvidet form + oppstilling
+  function expandedParts(n){
+    const h=Math.floor(n/100);
+    const t=Math.floor((n%100)/10);
+    const o=n%10;
+    const parts=[];
+    if(h>0) parts.push(`${h}00`);
+    if(t>0) parts.push(`${t}0`);
+    parts.push(`${o}`);
+    return parts;
+  }
+  function expandedString(n){ return expandedParts(n).join(' + '); }
+  function padLeft(s,w){ return String(s).padStart(w,' '); }
+
+  function carryMaskAdd(a,b,w){
+    let x=a, y=b, carry=0;
+    const incoming = new Array(w).fill(' ');
+    for(let i=0;i<w;i++){
+      const da=x%10, db=y%10;
+      const s=da+db+carry;
+      const nextCarry = s>=10 ? 1 : 0;
+      if(nextCarry===1){
+        const pos = w-1-i-1;
+        if(pos>=0) incoming[pos]='·';
+      }
+      carry=nextCarry;
+      x=Math.floor(x/10); y=Math.floor(y/10);
+    }
+    return incoming.join('');
+  }
+  function borrowMaskSub(a,b,w){
+    let x=a, y=b, borrow=0;
+    const need = new Array(w).fill(' ');
+    for(let i=0;i<w;i++){
+      const da=x%10, db=y%10;
+      const top=da-borrow;
+      const willBorrow = top<db ? 1:0;
+      if(willBorrow===1){
+        const pos = w-1-i;
+        if(pos>=0) need[pos]='·';
+      }
+      borrow=willBorrow;
+      x=Math.floor(x/10); y=Math.floor(y/10);
+    }
+    return need.join('');
+  }
+
+  function verticalTemplateAdd(a,b){
+    const r=a+b;
+    const w=Math.max(String(a).length, String(b).length, String(r).length);
+    const top=padLeft(a,w);
+    const bot=padLeft(b,w);
+    const line='-'.repeat(w);
+    const blank=padLeft('',w).replace(/ /g,'_');
+    const carryMask = carryMaskAdd(a,b,w);
+    const lines=[];
+    if(carryMask.trim().length>0) lines.push(' ' + carryMask);
+    lines.push('  ' + top);
+    lines.push('+ ' + bot);
+    lines.push('  ' + line);
+    lines.push('  ' + blank);
+    return lines.join('\n');
+  }
+  function verticalTemplateSub(a,b){
+    const r=a-b;
+    const w=Math.max(String(a).length, String(b).length, String(r).length);
+    const top=padLeft(a,w);
+    const bot=padLeft(b,w);
+    const line='-'.repeat(w);
+    const blank=padLeft('',w).replace(/ /g,'_');
+    const bm = borrowMaskSub(a,b,w);
+    const lines=[];
+    if(bm.trim().length>0) lines.push(' ' + bm);
+    lines.push('  ' + top);
+    lines.push('− ' + bot);
+    lines.push('  ' + line);
+    lines.push('  ' + blank);
+    return lines.join('\n');
+  }
+
+  function carryLineAdd(a,b,w){
+    let x=a, y=b, carry=0;
+    const incoming = new Array(w).fill(' ');
+    for(let i=0;i<w;i++){
+      const da=x%10, db=y%10;
+      const s=da+db+carry;
+      const nextCarry = s>=10 ? 1 : 0;
+      if(nextCarry===1){
+        const pos = w-1-i-1;
+        if(pos>=0) incoming[pos]='1';
+      }
+      carry=nextCarry;
+      x=Math.floor(x/10); y=Math.floor(y/10);
+    }
+    return incoming.join('');
+  }
+
+  function verticalSolvedAdd(a,b){
+    const r=a+b;
+    const w=Math.max(String(a).length, String(b).length, String(r).length);
+    const top=padLeft(a,w);
+    const bot=padLeft(b,w);
+    const res=padLeft(r,w);
+    const line='-'.repeat(w);
+    const c = carryLineAdd(a,b,w);
+    const lines=[];
+    if(c.trim().length>0) lines.push(' ' + c);
+    lines.push('  ' + top);
+    lines.push('+ ' + bot);
+    lines.push('  ' + line);
+    lines.push('  ' + res);
+    return lines.join('\n');
+  }
+
+  function verticalSolvedSub(a,b){
+    const r=a-b;
+    const w=Math.max(String(a).length, String(b).length, String(r).length);
+    const top=padLeft(a,w);
+    const bot=padLeft(b,w);
+    const res=padLeft(r,w);
+    const line='-'.repeat(w);
+    const bm = borrowMaskSub(a,b,w);
+    const lines=[];
+    if(bm.trim().length>0) lines.push(' ' + bm);
+    lines.push('  ' + top);
+    lines.push('− ' + bot);
+    lines.push('  ' + line);
+    lines.push('  ' + res);
+    return lines.join('\n');
+  }
+
+  function makeTips(task){
+    if(task.op==='add'){
+      textA.textContent = `Start på ${task.a}. Del ${task.b} i smarte hopp: til nærmeste tier/hundrer, så tiere/hundrer, så resten.`;
+    } else {
+      textA.textContent = `Start på ${task.a}. Hopp bakover. Del ${task.b} i smarte hopp: til nærmeste tier/hundrer, så tiere/hundrer, så resten.`;
+    }
+    preA.style.display='none';
+
+    const aExp = expandedString(task.a);
+    const bExp = expandedString(task.b);
+    const sym = task.op==='add' ? '+' : '−';
+    textB.textContent = `Skriv tallene i utvidet form (plassverdi):`;
+    preB.textContent =
+      `${task.a} = ${aExp}\n` +
+      `${task.b} = ${bExp}\n\n` +
+      `Skriv som: (${aExp}) ${sym} (${bExp})\n` +
+      `Regn hundrer, tiere og enere hver for seg – og sett sammen til slutt.`;
+
+    textC.textContent = `Still opp riktig (ener under ener). Fyll inn i resultatlinjen når du regner.`;
+    preC.textContent = (task.op==='add') ? verticalTemplateAdd(task.a,task.b) : verticalTemplateSub(task.a,task.b);
+  }
+
+  function makeFasit(task){
+    const sym = task.op==='add'?'+':'−';
+    answerBox.style.display='block';
+    answerBox.textContent = `${task.a} ${sym} ${task.b} = ${task.result}`;
+
+    const hops = (task.op==='add') ? decomposeAddHops(task.a,task.b) : decomposeSubHops(task.a,task.b);
+    let cur=task.a;
+    const lines=[`Start: ${cur}`];
+    for(const d of hops){
+      const next=cur+d;
+      lines.push(`${cur} ${d>=0?'+':''}${d} = ${next}`);
+      cur=next;
+    }
+    lines.push(`Slutt: ${task.result}`);
+    textA.textContent = `Ett eksempel på hopp (samme hopp som på tallinja):`;
+    preA.style.display='block';
+    preA.textContent = lines.join('\n');
+
+    const aExp=expandedString(task.a);
+    const bExp=expandedString(task.b);
+    textB.textContent = `Regn med plassverdi og sett sammen:`;
+    if(task.op==='add'){
+      const aH = Math.floor(task.a/100), aT=Math.floor((task.a%100)/10), aO=task.a%10;
+      const bH = Math.floor(task.b/100), bT=Math.floor((task.b%100)/10), bO=task.b%10;
+      const ones=aO+bO;
+      const carry1=Math.floor(ones/10);
+      const tens=aT+bT+carry1;
+      const carry2=Math.floor(tens/10);
+      preB.textContent =
+        `${task.a} = ${aExp}\n${task.b} = ${bExp}\n\n` +
+        `Enere: ${aO} + ${bO} = ${ones}\n` +
+        `Tiere: ${aT}0 + ${bT}0 + (bær ${carry1}0) = ${tens}0\n` +
+        `Hundrer: ${aH}00 + ${bH}00 + (bær ${carry2}00) = ${Math.floor(task.result/100)}00\n\n` +
+        `Svar: ${task.result}`;
+    } else {
+      preB.textContent =
+        `${task.a} = ${aExp}\n${task.b} = ${bExp}\n\n` +
+        `(${aExp}) − (${bExp})\n` +
+        `Hvis du må veksle: gjør 1 tier om til 10 enere (eller 1 hundrer om til 10 tiere).\n\n` +
+        `Svar: ${task.result}`;
+    }
+
+    textC.textContent = `Oppstilling (ferdig):`;
+    preC.textContent = (task.op==='add') ? verticalSolvedAdd(task.a,task.b) : verticalSolvedSub(task.a,task.b);
+  }
+
+  function setPanelState(state){
+    fasitState=state;
+    if(!current){
+      panelBody.classList.remove('open');
+      statePill.textContent='Skjult';
+      fasitBtn.textContent='Vis tips';
+      return;
+    }
+
+    if(state===0){
+      panelBody.classList.remove('open');
+      statePill.textContent='Skjult';
+      fasitBtn.textContent='Vis tips';
+      answerBox.style.display='none';
+      preA.style.display='none';
+      tagA.textContent='tips'; tagB.textContent='tips'; tagC.textContent='tips';
+      drawNumberLine(current,'quiet');
+      return;
+    }
+
+    panelBody.classList.add('open');
+
+    if(state===1){
+      statePill.textContent='Tips (ingen svar)';
+      fasitBtn.textContent='Vis fasit';
+      answerBox.style.display='none';
+      tagA.textContent='tips'; tagB.textContent='tips'; tagC.textContent='tips';
+      preA.style.display='none';
+      makeTips(current);
+      drawNumberLine(current,'tips');
+      return;
+    }
+
+    if(state===2){
+      statePill.textContent='Fasit (full løsning)';
+      fasitBtn.textContent='Skjul / tilbake til tips';
+      tagA.textContent='fasit'; tagB.textContent='fasit'; tagC.textContent='fasit';
+      makeFasit(current);
+      drawNumberLine(current,'answer');
+    }
+  }
+
+  function updateStatusLine(){
+    if(!current){ statusLine.textContent=''; return; }
+    const sym=current.op==='add'?'+':'−';
+    const lvlLabel = ({
+      '2_1':'2-sifret ± 1-sifret',
+      '2_2':'2-sifret ± 2-sifret',
+      '3_2':'3-sifret ± 2-sifret',
+      '3_3':'3-sifret ± 3-sifret'
+    })[current.levelKey] || current.levelKey;
+    statusLine.textContent = `Oppgave: ${current.a} ${sym} ${current.b} | Nivå: ${lvlLabel} | ${requirementText(current)}`;
+  }
+
+  function refreshMixWarning(){
+    mixWarn.style.display = (opSelect.value==='mix') ? 'block' : 'none';
+  }
+
+  function setupCanvasDPI(){
+    const dpr=window.devicePixelRatio||1;
+    const rect=canvas.getBoundingClientRect();
+    const cssW=rect.width;
+    const cssH=Math.max(220, Math.round(cssW*(260/980)));
+    canvas.style.height=cssH+'px';
+    canvas.width=Math.round(cssW*dpr);
+    canvas.height=Math.round(cssH*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    if(current){
+      const mode = (fasitState===2) ? 'answer' : (fasitState===1 ? 'tips' : 'quiet');
+      drawNumberLine(current, mode);
+    }else{
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='rgba(185,198,239,.92)';
+      ctx.font='14px ' + getComputedStyle(document.body).fontFamily;
+      ctx.fillText('Trykk “Ny oppgave” for å få tallinje.', 24, 40);
+    }
+  }
+  window.addEventListener('resize', setupCanvasDPI);
+
+  newBtn.addEventListener('click', ()=>{
+    current=generateTask();
+    const sym=current.op==='add'?'+':'−';
+    taskText.textContent=`${current.a} ${sym} ${current.b}`;
+    updateStatusLine();
+    setPanelState(0);
+  });
+
+  fasitBtn.addEventListener('click', ()=>{
+    if(!current){
+      current=generateTask();
+      const sym=current.op==='add'?'+':'−';
+      taskText.textContent=`${current.a} ${sym} ${current.b}`;
+      updateStatusLine();
+      setPanelState(1);
+      return;
+    }
+    if(fasitState===0) setPanelState(1);
+    else if(fasitState===1) setPanelState(2);
+    else setPanelState(1);
+  });
+
+  resetBtn.addEventListener('click', ()=> setPanelState(0));
+  opSelect.addEventListener('change', refreshMixWarning);
+
+  refreshMixWarning();
+  setTimeout(setupCanvasDPI, 0);
+})();
+</script>
+</body>
+</html>
